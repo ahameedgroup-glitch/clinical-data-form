@@ -1,0 +1,53 @@
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Offline Ready!'))
+        .catch(err => console.log('Worker failed', err));
+    });
+  }
+</script>
+<link rel="manifest" href="manifest.json">
+
+
+
+// --- AUTO-SAVE LOGIC ---
+setInterval(() => {
+    const formElement = document.getElementById('dataCollectionForm');
+    if (formElement) {
+        const formData = new FormData(formElement);
+        const data = Object.fromEntries(formData.entries());
+        localStorage.setItem('form_draft', JSON.stringify(data));
+        console.log("Progress auto-saved to phone storage.");
+    }
+}, 5000);
+
+// --- LOAD DRAFT LOGIC ---
+function loadDraft() {
+    const saved = localStorage.getItem('form_draft');
+    if (saved) {
+        const data = JSON.parse(saved);
+        Object.keys(data).forEach(key => {
+            const field = document.querySelector(`[name="${key}"]`);
+            if (field) {
+                // Set the value
+                field.value = data[key];
+                
+                // IMPORTANT: Manually trigger the 'change' event 
+                // This makes sure your skip-logic (like showing pack-years) actually runs
+                field.dispatchEvent(new Event('change', { bubbles: true }));
+                field.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        });
+        console.log("Draft restored.");
+    }
+}
+
+        // Initialize everything
+        initTabs();
+        goToSection(0);
+        initBranchingLogic();
+        loadDraft(); // <-- Call the load function here
+    </script>
+</body>
+</html>
