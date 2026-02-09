@@ -1,53 +1,258 @@
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('Offline Ready!'))
-        .catch(err => console.log('Worker failed', err));
-    });
-  }
-</script>
-<link rel="manifest" href="manifest.json">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessing Metformin's Role in Colon Cancer DFS: A KFMC Retrospective Analysis</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #4CAF50;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            overflow-x: auto;
+        }
+        .nav-tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .nav-tab:hover { background: #e9ecef; }
+        .nav-tab.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            background: white;
+        }
+        .form-section {
+            padding: 30px;
+            display: none;
+        }
+        .form-section.active { display: block; }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+        .required { color: #dc3545; }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .form-control.error {
+            border-color: #dc3545;
+        }
+        .help-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .button-group {
+            display: flex; gap: 10px; justify-content: space-between;
+            margin-top: 30px; padding: 20px 30px;
+            background: #f8f9fa; border-top: 1px solid #dee2e6;
+        }
+        .btn {
+            padding: 12px 30px; border: none; border-radius: 6px;
+            font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+        }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-success { background: #28a745; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 KFMC Metformin Retrospective Analysis</h1>
+            <p>Clinical Data Collection Portal</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+        </div>
 
+        <div class="nav-tabs" id="navTabs"></div>
 
-
-// --- AUTO-SAVE LOGIC ---
-setInterval(() => {
-    const formElement = document.getElementById('dataCollectionForm');
-    if (formElement) {
-        const formData = new FormData(formElement);
-        const data = Object.fromEntries(formData.entries());
-        localStorage.setItem('form_draft', JSON.stringify(data));
-        console.log("Progress auto-saved to phone storage.");
-    }
-}, 5000);
-
-// --- LOAD DRAFT LOGIC ---
-function loadDraft() {
-    const saved = localStorage.getItem('form_draft');
-    if (saved) {
-        const data = JSON.parse(saved);
-        Object.keys(data).forEach(key => {
-            const field = document.querySelector(`[name="${key}"]`);
-            if (field) {
-                // Set the value
-                field.value = data[key];
+        <form id="dataForm">
+            <div class="form-section active" id="section0" data-category="Demographics">
+                <h2 style="margin-bottom: 20px; color: #667eea;">📌 Demographics & Baseline</h2>
                 
-                // IMPORTANT: Manually trigger the 'change' event 
-                // This makes sure your skip-logic (like showing pack-years) actually runs
-                field.dispatchEvent(new Event('change', { bubbles: true }));
-                field.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        });
-        console.log("Draft restored.");
-    }
-}
+                <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 2px solid #ffc107;">
+                    <h3 style="color: #856404;">📥 Import Patient IDs</h3>
+                    <input type="file" id="patientFileUpload" accept=".xlsx,.xls,.csv" style="margin: 10px 0;">
+                    <button type="button" class="btn btn-primary" onclick="loadPatientFile()">📂 Load IDs</button>
+                    
+                    <div id="caseSelector" style="display: none; margin-top: 20px;">
+                        <select id="caseDropdown" class="form-control" style="max-width: 300px;" onchange="loadCase()">
+                            <option value="">-- Select Patient ID --</option>
+                        </select>
+                    </div>
+                </div>
 
-        // Initialize everything
-        initTabs();
-        goToSection(0);
-        initBranchingLogic();
-        loadDraft(); // <-- Call the load function here
+                <div class="form-group">
+                    <label class="form-label">Data Collector ID <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="data_collector_id">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Medical Record Number (MRN) <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="medical_record_number_mrn">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Smoking Status <span class="required">*</span></label>
+                    <select class="form-control" name="smoking_status">
+                        <option value="">-- Select --</option>
+                        <option value="Never">Never Smoker</option>
+                        <option value="Former">Former Smoker</option>
+                        <option value="Current">Current Smoker</option>
+                    </select>
+                </div>
+                <div class="form-group" data-depends-on="smoking_status" data-show-if="Former,Current" style="display: none;">
+                    <label class="form-label">Pack-Years</label>
+                    <input type="number" class="form-control" name="packyears">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" onclick="prevSection()">Previous</button>
+                <button type="button" class="btn btn-primary" onclick="nextSection()">Next</button>
+                <button type="button" class="btn btn-success" onclick="saveFinalData()">Save Final</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // 1. SERVICE WORKER REGISTRATION (OFFLINE MODE)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Offline Ready!'))
+                    .catch(err => console.error('Service Worker Error', err));
+            });
+        }
+
+        // 2. AUTO-SAVE LOGIC (RUNS EVERY 5 SECONDS)
+        setInterval(() => {
+            const formElement = document.getElementById('dataForm');
+            if (formElement) {
+                const formData = new FormData(formElement);
+                const data = Object.fromEntries(formData.entries());
+                localStorage.setItem('form_draft', JSON.stringify(data));
+                console.log("Draft auto-saved to device memory.");
+            }
+        }, 5000);
+
+        // 3. LOAD DRAFT LOGIC (RECOVERS DATA ON REFRESH)
+        function loadDraft() {
+            const saved = localStorage.getItem('form_draft');
+            if (saved) {
+                const data = JSON.parse(saved);
+                Object.keys(data).forEach(key => {
+                    const field = document.querySelector(`[name="${key}"]`);
+                    if (field) {
+                        field.value = data[key];
+                        // Trigger change event to fire your branching/skip logic
+                        field.dispatchEvent(new Event('change', { bubbles: true }));
+                        field.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                });
+                console.log("Form data restored from last session.");
+            }
+        }
+
+        // 4. CORE UI LOGIC
+        let currentSection = 0;
+        const sections = document.querySelectorAll('.form-section');
+
+        function goToSection(index) {
+            if (index < 0 || index >= sections.length) return;
+            sections[currentSection].classList.remove('active');
+            sections[index].classList.add('active');
+            currentSection = index;
+            document.getElementById('progressBar').style.width = ((index + 1) / sections.length * 100) + '%';
+        }
+
+        function nextSection() { goToSection(currentSection + 1); }
+        function prevSection() { goToSection(currentSection - 1); }
+
+        // 5. BRANCHING/SKIP LOGIC
+        function initBranchingLogic() {
+            document.querySelectorAll('[data-depends-on]').forEach(field => {
+                const parentName = field.getAttribute('data-depends-on');
+                const showValues = field.getAttribute('data-show-if').split(',');
+                const parentField = document.querySelector(`[name="${parentName}"]`);
+
+                if (parentField) {
+                    parentField.addEventListener('change', () => {
+                        if (showValues.includes(parentField.value)) {
+                            field.style.display = 'block';
+                        } else {
+                            field.style.display = 'none';
+                        }
+                    });
+                }
+            });
+        }
+
+        // 6. STARTUP SEQUENCE
+        document.addEventListener('DOMContentLoaded', () => {
+            initBranchingLogic();
+            loadDraft(); // Recover draft after logic is ready
+        });
     </script>
 </body>
 </html>
